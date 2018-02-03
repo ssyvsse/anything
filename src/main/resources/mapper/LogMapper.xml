@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ssyvsse.base.dao.LogMapper" >
+   
+   <resultMap id="logMap" type="com.ssyvsse.base.entity.Log">
+   		<id property="id" column="id"/>
+   		<result property="operationalContext" column="operational_context"/>
+   		<result property="operationTime" column="operation_time"/>
+   		<result property="operator" column="operator"/>
+   		<result property="ip" column="ip"/>
+   </resultMap>
+   
+   <select id="selectLogLikeKeyAndFromBeginToEnd" resultMap="logMap">
+   		select * from system_log 
+   			<trim prefix="where" suffix="" suffixOverrides="AND">
+	   			<if test="key != null and key != '' ">
+	   				operational_context like CONCAT("%",#{key},"%") AND 
+	   			</if>
+	   			<if test="beginTime != null and beginTime != '' ">
+	   				operation_time &gt;= CONCAT(#{beginTime}," 00:00:00") and 
+	   			</if>
+	   			<if test="endTime != null and endTime != '' ">
+	   				operation_time &lt;= CONCAT(#{endTime}," 23:59:59") 
+	   			</if>
+   			</trim>
+   			order by
+   			<choose>
+   				<when test="sortName != null and sortName != '' ">
+   					${sortName}
+   				</when>
+   				<otherwise>
+   					id
+   				</otherwise>
+   			</choose>
+   			<choose>
+   				<when test="sortOrder != null and sortOrder != '' ">
+   					${sortOrder}
+   				</when>
+   				<otherwise>
+   					desc
+   				</otherwise>
+   			</choose>
+			limit ${start},${end}  			
+   </select>
+   <select id="count" resultType="java.lang.Long">
+   		select count(id) from system_log 
+   			<trim prefix="where" suffix="" suffixOverrides="AND">
+	   			<if test="key != null and key != '' ">
+	   				operational_context like CONCAT("%",#{key},"%") AND 
+	   			</if>
+	   			<if test="beginTime != null and beginTime != '' ">
+	   				operation_time &gt;= CONCAT(#{beginTime}," 00:00:00") and 
+	   			</if>
+	   			<if test="endTime != null and endTime != '' ">
+	   				operation_time &lt;= CONCAT(#{endTime}," 23:59:59") 
+	   			</if>
+   			</trim>
+   			order by
+   			<choose>
+   				<when test="sortName != null and sortName != '' ">
+   					${sortName}
+   				</when>
+   				<otherwise>
+   					id
+   				</otherwise>
+   			</choose>
+   			<choose>
+   				<when test="sortOrder != null and sortOrder != '' ">
+   					${sortOrder}
+   				</when>
+   				<otherwise>
+   					desc
+   				</otherwise>
+   			</choose>
+			limit ${start},${end}  			
+   </select>
+   
+   <insert id="insert">
+   		insert into system_log(operational_context,operation_time,operator,ip) values(#{operationalContext},#{operationTime},#{operator},#{ip})
+   </insert>
+   
+   <select id="countId" resultType="java.lang.Long">
+   		select count(id) from system_log
+   </select>
+</mapper>
